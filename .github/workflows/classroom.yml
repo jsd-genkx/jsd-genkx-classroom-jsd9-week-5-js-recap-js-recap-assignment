@@ -1,0 +1,30 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: README.md word count check
+      id: readme-md-word-count-check
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: README.md word count check
+        setup-command: npm install
+        command: node grade.js
+        timeout: 30
+        max-score: 1
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        README-MD-WORD-COUNT-CHECK_RESULTS: "${{steps.readme-md-word-count-check.outputs.result}}"
+      with:
+        runners: readme-md-word-count-check
